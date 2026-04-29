@@ -1,55 +1,67 @@
-const express = require('express');
-const cors = require('cors');
-const { Sequelize, DataTypes } = require('sequelize');
-
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-// Conexão com PostgreSQL
-const sequelize = new Sequelize('sistema_erp', 'postgres', '123', {
-    host: 'localhost',
-    dialect: 'postgres',
-    logging: false
-});
-
-// Model de Usuário
-const Usuario = sequelize.define('Usuario', {
-    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
-    nome: { type: DataTypes.STRING(100), allowNull: false },
-    email: { type: DataTypes.STRING(100), allowNull: false, unique: true },
-    senha_hash: { type: DataTypes.STRING(255), allowNull: false },
-    cargo: { type: DataTypes.STRING(50), allowNull: false },
-    ativo: { type: DataTypes.BOOLEAN, defaultValue: true },
-    created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
-}, {
-    tableName: 'usuarios',
-    timestamps: false,
-    underscored: true
-});
-
-// Testar conexão
-sequelize.authenticate()
-    .then(() => console.log('✅ Conectado ao PostgreSQL!'))
-    .catch(err => console.error('❌ Erro ao conectar:', err.message));
-
-// Rota de teste
-app.get('/api/usuarios', async (req, res) => {
+// DASHBOARD ROTAS
+app.get('/api/dashboard/stats', async (req, res) => {
     try {
-        const usuarios = await Usuario.findAll();
-        res.json(usuarios);
+        const totalVendas = await sequelize.query('SELECT COALESCE(SUM(valor_total), 0) as total FROM vendas');
+        const totalClientes = await sequelize.query('SELECT COUNT(*) as total FROM clientes');
+        const totalUsuarios = await sequelize.query('SELECT COUNT(*) as total FROM usuarios');
+        const totalProdutos = await sequelize.query('SELECT COUNT(*) as total FROM produtos');
+        
+        res.json({
+            totalVendas: totalVendas[0][0].total,
+            totalClientes: totalClientes[0][0].total,
+            totalUsuarios: totalUsuarios[0][0].total,
+            totalProdutos: totalProdutos[0][0].total
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-// Rota de saúde
-app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', message: 'Sistema ERP rodando!' });
+app.get('/api/dashboard/vendas-por-mes', async (req, res) => {
+    try {
+        const result = await sequelize.query(`
+            SELECT 
+                TO_CHAR(created_at, 'Mon/YY') as mes,
+                COALESCE(SUM(valor_total), 0) as total
+            FROM vendas 
+            WHERE created_at >= NOW() - INTERVAL '6 months'
+            GROUP BY TO_CHAR(created_at, 'Mon/YY')
+            ORDER BY MIN(created_at)
+        `);
+        res.json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
-// Iniciar servidor
-const PORT = 5000;
-app.listen(PORT, () => {
-    console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
+app.get('/api/dashboard/vendas-por-vendedor', async (req, res) => {
+    try {
+        const result = await sequelize.query(`
+            SELECT u.nome, COALESCE(SUM(v.valor_total), 0) as total
+            FROM usuarios u
+            LEFT JOIN vendas v ON u.id = v.vendedor_id
+            WHERE u.cargo = 'vendedor'
+            GROUP BY u.id, u.nome
+            ORDER BY total DESC
+        `);
+        res.json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/dashboard/ultimas-vendas', async (req, res) => {
+    try {
+        const result = await sequelize.query(`
+            SELECT v.id, c.nome as cliente, u.nome as vendedor, v.valor_total as valor, v.status, v.created_at as data
+            FROM vendas v
+            JOIN clientes c ON v.cliente_id = c.id
+            JOIN usuarios u ON v.vendedor_id = u.id
+            ORDER BY v.created_at DESC
+            LIMIT 10
+        `);
+        res.json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
