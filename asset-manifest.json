@@ -1,0 +1,19 @@
+{
+  "files": {
+    "main.css": "/Sistema-ERP/static/css/main.1fe10c13.css",
+    "main.js": "/Sistema-ERP/static/js/main.a17394bc.js",
+    "static/js/239.5491b2ce.chunk.js": "/Sistema-ERP/static/js/239.5491b2ce.chunk.js",
+    "static/js/213.8f7a7fcf.chunk.js": "/Sistema-ERP/static/js/213.8f7a7fcf.chunk.js",
+    "static/js/732.a38800b4.chunk.js": "/Sistema-ERP/static/js/732.a38800b4.chunk.js",
+    "index.html": "/Sistema-ERP/index.html",
+    "main.1fe10c13.css.map": "/Sistema-ERP/static/css/main.1fe10c13.css.map",
+    "main.a17394bc.js.map": "/Sistema-ERP/static/js/main.a17394bc.js.map",
+    "239.5491b2ce.chunk.js.map": "/Sistema-ERP/static/js/239.5491b2ce.chunk.js.map",
+    "213.8f7a7fcf.chunk.js.map": "/Sistema-ERP/static/js/213.8f7a7fcf.chunk.js.map",
+    "732.a38800b4.chunk.js.map": "/Sistema-ERP/static/js/732.a38800b4.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.1fe10c13.css",
+    "static/js/main.a17394bc.js"
+  ]
+}
