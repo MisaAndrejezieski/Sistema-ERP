@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-
+const api = axios.create({
+  baseURL: 'https://sistema-erp-api.onrender.com/api', // URL que o Render vai gerar
+});
 
 // Intercepta requisições e adiciona o token automaticamente
 api.interceptors.request.use((config) => {
