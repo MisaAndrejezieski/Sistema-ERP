@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://sistema-erp-api.onrender.com/api', // SUA URL DO RENDER
+  baseURL: 'https://sistema-erp-vuyg.onrender.com/api',
 });
 
 api.interceptors.request.use((config) => {
