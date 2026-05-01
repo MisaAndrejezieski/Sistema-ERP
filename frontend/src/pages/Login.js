@@ -25,8 +25,7 @@ const styles = {
 };
 
 export default function Login() {
-  const [email, setEmail] = useState('admin@sistema.com');
-  const [senha, setSenha] = useState('admin123');
+  
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
 
